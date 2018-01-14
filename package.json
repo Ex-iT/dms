@@ -1,0 +1,19 @@
+{
+  "name": "dms",
+  "version": "0.0.1",
+  "description": "Drive Mount Scheduler",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "set NODE_ENV=production&&.\\node_modules\\.bin\\electron .",
+    "dev": "set NODE_ENV=development&&.\\node_modules\\.bin\\electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ex-iT",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^4.15.0"
+  },
+  "dependencies": {
+    "electron": "^1.7.10"
+  }
+}
