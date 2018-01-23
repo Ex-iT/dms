@@ -1,12 +1,20 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Tray, Menu } = require('electron');
 const path = require('path');
 const url = require('url');
 const development = process.env.NODE_ENV !== 'production';
 
-let win;
+const iconPath = path.join(__dirname, 'dms.ico');
+const title = 'Drive Mount Scheduler';
+let appIcon = null;
+let win = null;
 
 function createWindow() {
-	win = new BrowserWindow({ width: 1280, height: 800 });
+	win = new BrowserWindow({
+		width: 1280, height: 800,
+		maximizable: false,
+		icon: iconPath,
+		// show: false,
+		resizable: development });
 
 	win.loadURL(url.format({
 		pathname: path.join(__dirname, 'index.html'),
@@ -18,8 +26,33 @@ function createWindow() {
 		win.webContents.openDevTools();
 	}
 
+	appIcon = new Tray(iconPath);
+	var contextMenu = Menu.buildFromTemplate([{
+			label: 'Show App',
+			click: () => {
+				win.setSkipTaskbar(false);
+				win.show();
+			}
+		},
+		{
+			label: 'Exit',
+			click: () => {
+				app.isQuiting = true;
+				app.quit();
+			}
+		}
+	]);
+	appIcon.setToolTip(title);
+	appIcon.setContextMenu(contextMenu);
+
 	win.on('closed', () => {
 		win = null
+	});
+
+	win.on('minimize', event => {
+		event.preventDefault();
+		win.setSkipTaskbar(true);
+		win.hide();
 	});
 }
 
@@ -32,8 +65,3 @@ app.on('window-all-closed', () => {
 	}
 });
 
-app.on('activate', () => {
-	if (win === null) {
-		createWindow()
-	}
-});

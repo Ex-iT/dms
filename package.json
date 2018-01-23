@@ -11,9 +11,9 @@
   "author": "Ex-iT",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^4.15.0"
+    "eslint": "^4.16.0"
   },
   "dependencies": {
-    "electron": "^1.7.10"
+    "electron": "^1.8.1"
   }
 }

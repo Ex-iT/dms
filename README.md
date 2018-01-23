@@ -7,7 +7,7 @@ Windows only Electron app to schedule mounting and unmounting of a drive.
 Install the dependencies using `npm install` and run:
 
 ```
-	$ npm run start
+$ npm run start
 ```
 
 # Development
@@ -15,5 +15,5 @@ Install the dependencies using `npm install` and run:
 To start the app in development mode run:
 
 ```
- $ npm run dev
+$ npm run dev
 ```
