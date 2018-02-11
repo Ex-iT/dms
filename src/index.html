@@ -6,9 +6,16 @@
 	<link rel="stylesheet" href="./style.css">
 </head>
 <body>
-	<div id="app"></div>
-	<script>
-		require('./renderer.js')
+	<div id="app">
+		<form id="form" action="#">
+			<select name="drive-letter" id="drive-letter"></select>
+		</form>
+	</div>
+
+	<script id="templ-list-item" type="text/template">
+		<option value="{{ value }}" {% if selected %}selected="selected"{% endif %}>{{ label }}</option>
 	</script>
+
+	<script>require('./renderer.js')</script>
 </body>
 </html>

@@ -1,8 +1,13 @@
 'use strict';
 
-const childProcess = require('child_process');
-
+/**
+ * getLetters
+ * Get a list of unused drive letters on the current machine
+ *
+ * @returns {Promise} Array with unused drive letters
+ */
 function getLetters() {
+	const childProcess = require('child_process');
 	const command = 'wmic logicaldisk get caption';
 
 	return new Promise((resolve, reject) => {

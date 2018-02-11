@@ -16,6 +16,9 @@ function createWindow() {
 		// show: false,
 		resizable: development });
 
+	// Remove toolbar
+	win.setMenu(null);
+
 	win.loadURL(url.format({
 		pathname: path.join(__dirname, 'index.html'),
 		protocol: 'file:',
@@ -28,7 +31,7 @@ function createWindow() {
 
 	appIcon = new Tray(iconPath);
 	var contextMenu = Menu.buildFromTemplate([{
-			label: 'Show App',
+			label: 'Open',
 			click: () => {
 				win.setSkipTaskbar(false);
 				win.show();
