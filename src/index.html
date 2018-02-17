@@ -8,13 +8,29 @@
 <body>
 	<div id="app">
 		<form id="form" action="#">
-			<select name="drive-letter" id="drive-letter"></select>
+			<label for="disk">
+				Disk:
+				<select name="disk" id="disk">
+					<option value="">EMPTY</option>
+				</select>
+			</label>
+			<br />
+			<label for="drive-letter">
+				Drive:
+				<select name="drive-letter" id="drive-letter"></select>
+			</label>
+			<label for="mount-time">
+				Mount:
+				<input type="time" name='mount-time' id='mount-time' />
+			</label>
+			<label for="unmount-time">
+				Unmount:
+				<input type="time" name='unmount-time' id='unmount-time' />
+			</label>
+
+			<button>Save</button>
 		</form>
 	</div>
-
-	<script id="templ-list-item" type="text/template">
-		<option value="{{ value }}" {% if selected %}selected="selected"{% endif %}>{{ label }}</option>
-	</script>
 
 	<script>require('./renderer.js')</script>
 </body>

@@ -1,32 +1,54 @@
-const STE = require('./lib/STE');
-const getLetters = require('./lib/getLetters');
+const Store = require('./lib/store');
 
-// $driveLetter = "Y:"
-// $deviceID = "\\?\Volume{0d405f63-0000-0000-007e-000000000000}\"
-// gwmi Win32_Volume | ? { $_.deviceID -eq '\\?\Volume{951ea2d0-0000-0000-0000-805474000000}\'} | select -expand name
+const getDrives = require('./lib/getDrives');
+const mountDrive = require('./lib/mountDrive');
 
-(function name(root, doc, win) {
+// Components
+const mountPoints = require('./components/mount-points/mount-points');
 
-	getLetters().then(letters => {
+(function (doc) {
+
+	// getDrives().then(drives => {
+	// 	console.log(drives);
+	// });
+	mountDrive().then(mount => {
+		console.log(mount);
+	});
+
+	addEvents(doc);
+
+	mountPoints().then(html => {
 		const selectElm = doc.getElementById('drive-letter');
-		const options = generateDriveOptions(letters);
+		selectElm.innerHTML = html;
 
-		selectElm.innerHTML = options;
+		setStoredValues(doc);
+	});
+})(document);
 
-	}).catch(err => console.log(err));
+function setStoredValues(doc) {
+	const data = Store.get('data');
 
-	function generateDriveOptions(letters) {
-		const templElm = doc.getElementById('templ-list-item');
-		const options = letters.map(letter => {
-			return {
-				label: letter + ':',
-				value: letter,
-				selected: false
+	if (data) {
+		Object.keys(data).forEach(key => {
+			const input = doc.getElementById(key);
+			if (input) {
+				input.value = data[key];
 			}
 		});
-		options[0].selected = true;
-
-		return options.map(option => STE(templElm.innerHTML, option)).join('\n');
 	}
+}
 
-})(document.getElementById('app'), document, window);
+function addEvents(doc) {
+	const form = doc.getElementById('form');
+
+	form.addEventListener('submit', event => {
+		event.preventDefault();
+
+		const data = {};
+		const formData = new FormData(event.target);
+		for (let value of formData) {
+			data[value[0]] = value[1];
+		}
+		Store.set('data', data);
+	});
+}

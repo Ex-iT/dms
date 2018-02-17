@@ -19,12 +19,12 @@ function getLetters() {
 			let usedLetters = stdout.split(/\r\n/).map(line => line.trim().replace(':', '')).filter(line => line);
 			usedLetters.splice(0, 1) // Remove fist item from array
 
-			resolve(removeUsedLetters(usedLetters));
+			resolve(_removeUsedLetters(usedLetters));
 		});
 	});
 }
 
-function removeUsedLetters(usedLetters) {
+function _removeUsedLetters(usedLetters) {
 	const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 	for (let i = 0; i < usedLetters.length; i++) {
 		letters.splice(letters.indexOf(usedLetters[i]), 1);

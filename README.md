@@ -17,3 +17,12 @@ To start the app in development mode run:
 ```
 $ npm run dev
 ```
+
+## Admin privileges
+
+In order to (un)mount drives the application needs administrator privileges.
+To run the dev task with these privileges use:
+
+```
+$ npm run dev:admin
+```
