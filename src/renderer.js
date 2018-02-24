@@ -1,3 +1,5 @@
+'use strict';
+
 const Store = require('./lib/store');
 
 const getDrives = require('./lib/getDrives');
@@ -6,14 +8,18 @@ const mountDrive = require('./lib/mountDrive');
 // Components
 const mountPoints = require('./components/mount-points/mount-points');
 
+/* Note:
+	Run the application with admin rights
+	- runas.exe /noprofile /user:<username> <command>
+*/
 (function (doc) {
 
-	// getDrives().then(drives => {
-	// 	console.log(drives);
-	// });
-	mountDrive().then(mount => {
-		console.log(mount);
+	getDrives().then(drives => {
+		console.log(drives);
 	});
+	// mountDrive('E:', '\\\\?\\Volume{750aa7c8-140a-11e8-be87-08002756f1fd}\\').then(mount => {
+	// 	console.log(mount);
+	// });
 
 	addEvents(doc);
 

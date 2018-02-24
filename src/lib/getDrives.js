@@ -1,5 +1,7 @@
 'use strict';
 
+const powershell = require('./powershell');
+
 /**
  * Gets a JSON object with device information
  *
@@ -7,23 +9,14 @@
  */
 function getDrives() {
 	return new Promise((resolve, reject) => {
-		const spawn = require('child_process').spawn;
 		const command = 'gwmi Win32_Volume | Select-Object DeviceID, DriveLetter, Label | ConvertTo-Json';
-		const child = spawn('powershell.exe', [command]);
 
-		let stdout, stderr;
-		child.stdout.on('data', data => stdout = data.toString());
-		child.stderr.on('data', data => stderr = data.toString());
-
-		child.on('exit', () => {
-			if (stderr) {
-				reject(stderr);
-			} else {
-				resolve(stdout);
-			}
+		powershell(command).then(stdout => {
+			resolve(stdout);
+		})
+		.catch(stderr => {
+			reject(stderr);
 		});
-
-		child.stdin.end();
 	});
 }
 
