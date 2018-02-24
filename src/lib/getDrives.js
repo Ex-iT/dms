@@ -12,7 +12,7 @@ function getDrives() {
 		const command = 'gwmi Win32_Volume | Select-Object DeviceID, DriveLetter, Label | ConvertTo-Json';
 
 		powershell(command).then(stdout => {
-			resolve(stdout);
+			resolve(JSON.parse(stdout));
 		})
 		.catch(stderr => {
 			reject(stderr);

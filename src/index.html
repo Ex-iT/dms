@@ -10,25 +10,27 @@
 		<form id="form" action="#">
 			<label for="disk">
 				Disk:
-				<select name="disk" id="disk">
-					<option value="">EMPTY</option>
-				</select>
+				<select name="disk" id="disk" disabled></select>
 			</label>
 			<br />
 			<label for="drive-letter">
 				Drive:
-				<select name="drive-letter" id="drive-letter"></select>
+				<select name="drive-letter" id="drive-letter" disabled></select>
 			</label>
 			<label for="mount-time">
 				Mount:
-				<input type="time" name='mount-time' id='mount-time' />
+				<input type="time" name='mount-time' id='mount-time' disabled />
 			</label>
 			<label for="unmount-time">
 				Unmount:
-				<input type="time" name='unmount-time' id='unmount-time' />
+				<input type="time" name='unmount-time' id='unmount-time' disabled />
 			</label>
 
 			<button>Save</button>
+
+			<hr>
+			<button id="mount" type="button">Mount</button>
+			<button id="unmount" type="button">Unmount</button>
 		</form>
 	</div>
 

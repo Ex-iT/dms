@@ -2,11 +2,11 @@
 
 const Store = require('./lib/store');
 
-const getDrives = require('./lib/getDrives');
 const mountDrive = require('./lib/mountDrive');
 
 // Components
 const mountPoints = require('./components/mount-points/mount-points');
+const devices = require('./components/devices/devices');
 
 /* Note:
 	Run the application with admin rights
@@ -14,18 +14,21 @@ const mountPoints = require('./components/mount-points/mount-points');
 */
 (function (doc) {
 
-	getDrives().then(drives => {
-		console.log(drives);
-	});
 	// mountDrive('E:', '\\\\?\\Volume{750aa7c8-140a-11e8-be87-08002756f1fd}\\').then(mount => {
 	// 	console.log(mount);
 	// });
 
 	addEvents(doc);
 
-	mountPoints().then(html => {
-		const selectElm = doc.getElementById('drive-letter');
-		selectElm.innerHTML = html;
+	Promise.all([devices(), mountPoints()])
+	.then(([devicesHTML, mountPointsHTML]) => {
+		const selectDisk = doc.getElementById('disk');
+		selectDisk.innerHTML = devicesHTML;
+		selectDisk.disabled = false;
+
+		const selectDrive = doc.getElementById('drive-letter');
+		selectDrive.innerHTML = mountPointsHTML;
+		selectDrive.disabled = false;
 
 		setStoredValues(doc);
 	});
@@ -56,5 +59,21 @@ function addEvents(doc) {
 			data[value[0]] = value[1];
 		}
 		Store.set('data', data);
+	});
+
+
+	// FOR DEBUGGING ONLY!
+	doc.getElementById('mount').addEventListener('click', () => {
+		const letter = form['drive-letter'].value;
+		const device = form['disk'].value;
+		mountDrive(letter, device).then(mount => {
+			console.log('mount', letter, device);
+		});
+	});
+	doc.getElementById('unmount').addEventListener('click', () => {
+		const letter = form['drive-letter'].value;
+		mountDrive(letter).then(unmount => {
+			console.log('unmount', letter);
+		});
 	});
 }

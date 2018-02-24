@@ -16,8 +16,8 @@ function mountPoints() {
 function _generateDriveOptions(letters, template) {
 	const options = letters.map(letter => {
 		return {
-			label: letter + ':',
-			value: letter
+			label: letter + ':\\',
+			value: letter + ':'
 		}
 	});
 
