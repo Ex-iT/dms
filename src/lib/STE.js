@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * Simple Template Engine
  * Over simplified template engine
@@ -10,10 +8,11 @@
  */
 function sTE(template, context) {
 	// Replace
-	const hits = template.match(/{{(.+?)}}/gi);
+	const regExp = /{{(.+?)}}/;
+	const hits = template.match(RegExp(regExp, 'gi'));
 	if (hits) {
 		hits.forEach(hit => {
-			const key = hit.match(/{{(.+?)}}/i, '')[1].trim();
+			const key = hit.match(RegExp(regExp, 'i'), '')[1].trim();
 			if (context.hasOwnProperty(key)) {
 				template = template.replace(hit, context[key]);
 			} else {
@@ -23,10 +22,11 @@ function sTE(template, context) {
 	}
 
 	// Conditionals
-	const conHits = template.match(/{%\sif\s(.+?)\s%}(.+?){%\sendif\s%}/gi);
+	const conditionalRegExp = /{%\sif\s(.+?)\s%}(\s*.*\s*){%\sendif\s%}/;
+	const conHits = template.match(RegExp(conditionalRegExp, 'gi'));
 	if (conHits) {
 		conHits.forEach(hit => {
-			const match = template.match(/{%\sif\s(.+?)\s%}(.+?){%\sendif\s%}/i);
+			const match = template.match(RegExp(conditionalRegExp, 'i'));
 			if (context.hasOwnProperty(match[1])) {
 				// Positive match
 				if (context[match[1]]) {
@@ -34,20 +34,18 @@ function sTE(template, context) {
 				} else {
 					template = template.replace(hit, '');
 				}
-			} else {
+			} else if (match[1].startsWith('!')) {
 				// Negative match
-				if (match[1].startsWith('!')) {
-					const key = match[1].replace('!', '');
-					if (context.hasOwnProperty(key)) {
-						if (!context[key]) {
-							template = template.replace(hit, match[2]);
-						} else {
-							template = template.replace(hit, '');
-						}
+				const key = match[1].replace('!', '');
+				if (context.hasOwnProperty(key)) {
+					if (!context[key]) {
+						template = template.replace(hit, match[2]);
+					} else {
+						template = template.replace(hit, '');
 					}
-				} else {
-					console.warn(`Conditional '${match[1]}' not found in context`);
 				}
+			} else {
+				console.warn(`Conditional '${match[1]}' not found in context`);
 			}
 		});
 	}

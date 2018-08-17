@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * Execute a PowerShell command as a child process
  *

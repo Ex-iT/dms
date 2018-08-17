@@ -1,5 +1,3 @@
-'use strict';
-
 const getLetters = require('./../../lib/getLetters');
 const getTemplate = require('./../../lib/getTemplate');
 const sTE = require('./../../lib/sTE');
@@ -8,7 +6,7 @@ function mountPoints() {
 	return new Promise((resolve, reject) => {
 		Promise.all([getLetters(), getTemplate('mount-points')])
 		.then(([letters, template]) => {
-			resolve(_generateDriveOptions(letters, template));
+			resolve({ unused: _generateDriveOptions(letters.unused, template), used: _generateDriveOptions(letters.used, template) });
 		}).catch(err => reject(err));
 	});
 }

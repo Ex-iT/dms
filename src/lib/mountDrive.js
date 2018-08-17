@@ -1,5 +1,3 @@
-'use strict';
-
 const powershell = require('./powershell');
 
 /**

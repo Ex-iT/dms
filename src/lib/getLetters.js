@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * getLetters
  * Get a list of unused drive letters on the current machine
@@ -19,19 +17,14 @@ function getLetters() {
 			let usedLetters = stdout.split(/\r\n/).map(line => line.trim().replace(':', '')).filter(line => line);
 			usedLetters.splice(0, 1) // Remove fist item from array
 
-			resolve(_removeUsedLetters(usedLetters));
+			resolve({ unused: _removeUsedLetters(usedLetters), used: usedLetters.filter(letter => letter !== 'C') });
 		});
 	});
 }
 
 function _removeUsedLetters(usedLetters) {
 	const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-	for (let i = 0; i < usedLetters.length; i++) {
-		letters.splice(letters.indexOf(usedLetters[i]), 1);
-	}
-
-	return letters;
+	return letters.filter(letter => !usedLetters.includes(letter));
 }
-
 
 module.exports = getLetters;

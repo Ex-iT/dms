@@ -1,20 +1,26 @@
-const { app, BrowserWindow, Tray, Menu } = require('electron');
+const { app, session, BrowserWindow, Tray, Menu } = require('electron');
 const path = require('path');
 const url = require('url');
 const development = process.env.NODE_ENV !== 'production';
 
 const iconPath = path.join(__dirname, 'dms.ico');
 const title = 'Drive Mount Scheduler';
-let appIcon = null;
-let win = null;
 
 function createWindow() {
-	win = new BrowserWindow({
-		width: 1280, height: 800,
+	// CSP HTTP Header
+	// @NOTE: doesn't seem to work, so setting it in the index.html as meta-tag
+	session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+		callback({ responseHeaders: `default-src 'self'; script-src 'unsafe-inline'` });
+	});
+
+	let win = new BrowserWindow({
+		width: 1280,
+		height: 800,
 		maximizable: false,
 		icon: iconPath,
 		// show: false,
-		resizable: development });
+		resizable: development
+	});
 
 	// Remove toolbar
 	win.setMenu(null);
@@ -29,7 +35,7 @@ function createWindow() {
 		win.webContents.openDevTools();
 	}
 
-	appIcon = new Tray(iconPath);
+	const tray = new Tray(iconPath);
 	var contextMenu = Menu.buildFromTemplate([{
 			label: 'Open',
 			click: () => {
@@ -45,13 +51,11 @@ function createWindow() {
 			}
 		}
 	]);
-	appIcon.setToolTip(title);
-	appIcon.setContextMenu(contextMenu);
+	tray.setToolTip(title);
+	tray.setContextMenu(contextMenu);
+	tray.on('double-click', () => win.isVisible() ? win.hide() : win.show());
 
-	win.on('closed', () => {
-		win = null
-	});
-
+	win.on('closed', () => win = null);
 	win.on('minimize', event => {
 		event.preventDefault();
 		win.setSkipTaskbar(true);
@@ -59,6 +63,7 @@ function createWindow() {
 	});
 }
 
+app.setAppUserModelId(title);
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Store data by key
  *

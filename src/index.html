@@ -2,36 +2,79 @@
 <html>
 <head>
 	<meta charset="UTF-8">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'">
 	<title>Drive Mount Scheduler</title>
-	<link rel="stylesheet" href="./style.css">
+	<link rel="stylesheet" href="./static/css/index.css">
 </head>
 <body>
 	<div id="app">
-		<form id="form" action="#">
-			<label for="disk">
-				Disk:
-				<select name="disk" id="disk" disabled></select>
-			</label>
-			<br />
-			<label for="drive-letter">
-				Drive:
-				<select name="drive-letter" id="drive-letter" disabled></select>
-			</label>
-			<label for="mount-time">
-				Mount:
-				<input type="time" name='mount-time' id='mount-time' disabled />
-			</label>
-			<label for="unmount-time">
-				Unmount:
-				<input type="time" name='unmount-time' id='unmount-time' disabled />
-			</label>
+		<section>
+			<h2>Edit</h2>
+			<form id="form" action="#">
+				<div class="row">
+					<label for="disk">
+						Disk:
+						<select name="disk" id="disk" disabled></select>
+					</label>
+				</div>
+				<div class="row">
+					<label for="drive-letter">
+						Drive:
+						<select name="drive-letter" id="drive-letter" disabled></select>
+					</label>
+					<label for="mount-time">
+						Mount:
+						<input type="time" name='mount-time' id='mount-time' value="00:00" />
+					</label>
+					<label for="unmount-time">
+						Unmount:
+						<input type="time" name='unmount-time' id='unmount-time' value="00:05" />
+					</label>
+					<button class="primary">Save</button>
+				</div>
+			</form>
+		</section>
 
-			<button>Save</button>
-
-			<hr>
-			<button id="mount" type="button">Mount</button>
-			<button id="unmount" type="button">Unmount</button>
-		</form>
+		<section>
+			<h2>Tools</h2>
+			<form id="tools" action="#" class="row wrap">
+				<fieldset class="tools-mount">
+					<legend>Mounting</legend>
+					<div class="row">
+						<label for="tools-drive-letter">
+							Drive:
+							<select name="tools-drive-letter-mount" id="tools-drive-letter-mount" disabled></select>
+						</label>
+						<label for="tools-disk">
+							Disk:
+							<select name="tools-disk" id="tools-disk" disabled></select>
+						</label>
+					</div>
+					<div class="row">
+						<button id="mount" type="button">Mount</button>
+					</div>
+				</fieldset>
+				<fieldset class="tools-unmount">
+					<legend>Unmounting</legend>
+					<div class="row">
+						<label for="tools-drive-letter">
+							Drive:<br>
+							<select name="tools-drive-letter-unmount" id="tools-drive-letter-unmount" disabled></select>
+						</label>
+					</div>
+					<div class="row">
+						<button id="unmount" type="button">Unmount</button>
+					</div>
+				</fieldset>
+				<fieldset class="tools-output">
+					<legend>Output</legend>
+					<textarea name="output" id="output" readonly class="tools-output-text"></textarea>
+					<div class="row">
+						<button id="clear-output" type="button">Clear</button>
+					</div>
+				</fieldset>
+			</form>
+		</section>
 	</div>
 
 	<script>require('./renderer.js')</script>
