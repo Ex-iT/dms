@@ -1,10 +1,11 @@
-<option value="{{ DeviceID }}" {% if disabled %}disabled{% endif %}>
-	{{ DeviceID }}
-	{% if disabled %}- {% endif %}
-	{% if Label %}
-		{{ Label }}
+<option value="{{ UniqueId }}" {% if disabled %}disabled{% endif %}>
+	{% if FileSystemLabel %}
+		{{ FileSystemLabel }}
 	{% endif %}
 	{% if DriveLetter %}
-		{{ DriveLetter }}
+		{{ DriveLetter }}:
 	{% endif %}
+	{% if disabled %}- {% endif %}
+	{{ UniqueId }}
+	{% if Size %}({{ Size }} / {{ SizeRemaining }}){% endif %}
 </option>

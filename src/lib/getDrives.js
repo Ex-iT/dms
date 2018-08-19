@@ -7,7 +7,7 @@ const powershell = require('./powershell');
  */
 function getDrives() {
 	return new Promise((resolve, reject) => {
-		const command = 'gwmi Win32_Volume | Select-Object DeviceID, DriveLetter, Label | ConvertTo-Json';
+		const command = 'Get-Volume | Select-Object -Property UniqueId, DriveLetter, FileSystemLabel, Size, SizeRemaining | ConvertTo-Json';
 
 		powershell(command).then(stdout => {
 			resolve(JSON.parse(stdout));

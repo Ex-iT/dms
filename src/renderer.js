@@ -6,7 +6,7 @@ const { remote } = require('electron');
 const win = remote.getCurrentWindow();
 
 // Components
-const mountPoints = require('./components/mount-points/mount-points');
+const mountPoints = require('./components/mountPoints/mountPoints');
 const devices = require('./components/devices/devices');
 
 /* Note:
@@ -16,6 +16,9 @@ const devices = require('./components/devices/devices');
 (function (doc) {
 	addEvents();
 	setMountOptions();
+
+	// Disk drive info
+	// Get-Disk -Path '\\?\scsi#disk&ven_vbox&prod_harddisk#4&2617aeae&0&000000#{53f56307-b6bf-11d0-94f2-00a0c91efb8b}' | Select FriendlyName, Size | ConvertTo-Json
 
 	// console.log(win.getBounds());
 	// win.setSize(760, 700);
@@ -81,7 +84,12 @@ const devices = require('./components/devices/devices');
 
 	function addEvents() {
 		const form = doc.getElementById('form');
+		const editJobBtn = form['edit-job'];
 		const toolsForm = doc.getElementById('tools');
+
+		editJobBtn.addEventListener('click', () => {
+			console.log('edit job button');
+		});
 
 		form.addEventListener('submit', event => {
 			event.preventDefault();
