@@ -7,10 +7,10 @@
 	<link rel="stylesheet" href="./static/css/index.css">
 </head>
 <body>
-	<div id="app">
+	<div id="app" class="app">
 		<section>
 			<h2>Edit</h2>
-			<form id="form" action="#">
+			<form id="form" class="main-form" action="#">
 				<div class="row">
 					<label for="disk">
 						Disk:
@@ -30,14 +30,17 @@
 						Unmount:
 						<input type="time" name='unmount-time' id='unmount-time' value="00:05" />
 					</label>
-					<button class="primary">Save</button>
+					<button class="btn-save-job primary">Save</button>
 					<button name="edit-job" class="btn-edit-job secondary" type="button">Edit</button>
 				</div>
 			</form>
 		</section>
 
-		<section>
-			<h2>Tools</h2>
+		<section id="tools-section" class="tools-section">
+			<h2 id="tools-collapse" class="tools-collapse">
+				<span class="tools-collapse-title">Tools</span>
+				<span class="tools-collapse-icon">&lt;</span>
+			</h2>
 			<form id="tools" action="#" class="row wrap">
 				<fieldset class="tools-mount">
 					<legend>Mounting</legend>
@@ -75,6 +78,14 @@
 					</div>
 				</fieldset>
 			</form>
+		</section>
+		<section id="no-admin" class="no-admin">
+			<div class="no-admin-message">
+				<h1>No administrator rights</h1>
+				<p>This application needs administrator rights.</p>
+				<p>Try reloading or restart the application with administrator rights.</p>
+				<button id="reload" class="reload secondary" type="button">Reload</button>
+			</div>
 		</section>
 	</div>
 

@@ -2,20 +2,33 @@
   "name": "dms",
   "version": "0.0.1",
   "description": "Drive Mount Scheduler",
+  "author": {
+    "name": "Ex-iT",
+    "url": "https://github.com/Ex-iT"
+  },
+  "private": true,
+  "os": [
+    "win32"
+  ],
+  "license": "ISC",
   "main": "src/app.js",
   "scripts": {
     "start": "set NODE_ENV=production&&.\\node_modules\\.bin\\electron .",
     "dev": "set NODE_ENV=development&&.\\node_modules\\.bin\\electron .",
     "dev:admin": ".\\run-dev-admin.bat",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dist": "electron-packager ./ --platform=win32 --overwrite=true --appname='DriveMountScheduler' --version-string.ProductName='DriveMountScheduler' --version-string.InternalName='DriveMountScheduler' --version-string.CompanyName=' --version-string.FileDescription='Drive Mount Scheduler' --version-string.OriginalFilename='dms.exe'"
   },
-  "author": "Ex-iT",
-  "license": "ISC",
+  "build": {
+    "appId": "drive.mount.scheduler",
+    "win": {
+      "requestedExecutionLevel": "highestAvailable"
+    }
+  },
   "devDependencies": {
-    "eslint": "^4.16.0"
+    "eslint": "^4.19.1"
   },
   "dependencies": {
     "cron": "^1.3.0",
-    "electron": "^2.0.3"
+    "electron": "^2.0.8"
   }
 }

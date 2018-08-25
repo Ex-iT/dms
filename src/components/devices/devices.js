@@ -6,27 +6,16 @@ function devices() {
 	return new Promise((resolve, reject) => {
 		Promise.all([getDrives(), getTemplate('devices')])
 		.then(([drives, template]) => {
-			const allDrives = drives.map(drive => {
-				drive.disabled = false;
-				if (drive['FileSystemLabel'] === 'System Reserved' || drive['DriveLetter'] === 'C') {
-					drive.disabled = true;
-				}
-				drive['Size'] = formatSize(drive['Size']);
-				drive['SizeRemaining'] = formatSize(drive['SizeRemaining']);
-				return Object.assign({}, drive);
-			}).sort(drive => drive.disabled);
-
 			const sortedDrives = drives.map(drive => {
 				drive.disabled = false;
-				if (!!drive['DriveLetter'] || !!drive['FileSystemLabel']) {
+				if (drive['Label'] === 'System Reserved' || drive['DriveLetter']) {
 					drive.disabled = true;
 				}
-				drive['Size'] = formatSize(drive['Size']);
-				drive['SizeRemaining'] = formatSize(drive['SizeRemaining']);
+				drive['Freespace'] = formatSize(drive['Freespace']);
 				return Object.assign({}, drive);
 			}).sort(drive => drive.disabled);
 
-			resolve({ all: allDrives.map(drive => sTE(template, drive)).join('\n'), sorted: sortedDrives.map(drive => sTE(template, drive)).join('\n') });
+			resolve({ sorted: sortedDrives.map(drive => sTE(template, drive)).join('\n') });
 		}).catch(err => reject(err));
 	});
 }

@@ -1,6 +1,9 @@
 const Store = require('./lib/store');
 const mountDrive = require('./lib/mountDrive');
 const log = require('./lib/log');
+const isAdmin = require('./lib/isAdmin');
+
+const CronJob = require('cron').CronJob;
 
 const { remote } = require('electron');
 const win = remote.getCurrentWindow();
@@ -14,54 +17,59 @@ const devices = require('./components/devices/devices');
 	- runas.exe /noprofile /user:<username> <command>
 */
 (function (doc) {
-	addEvents();
-	setMountOptions();
-
-	// Disk drive info
-	// Get-Disk -Path '\\?\scsi#disk&ven_vbox&prod_harddisk#4&2617aeae&0&000000#{53f56307-b6bf-11d0-94f2-00a0c91efb8b}' | Select FriendlyName, Size | ConvertTo-Json
-
-	// console.log(win.getBounds());
-	// win.setSize(760, 700);
-
-	// https://crontab.guru/every-5-minutes - */5 * * * *
-	var CronJob = require('cron').CronJob;
-	new CronJob({
-		cronTime: '57 17 * * *',
-		onTick: function() {
-			const data = Store.get('data');
-			mountDrive(data['drive-letter'], data.disk).then(() => {
-				log(`[job mounting] ${data['drive-letter']}`);
+	isAdmin().then(response => {
+		if (!response.error && response.isAdmin) {
+			addEvents();
+			setMountOptions()
+			.then(response => {
+				if (response.done) {
+					const data = Store.get('data');
+					if (data) {
+						setStoredValues(data);
+						setTimers(data);
+					}
+				} else {
+					log('[setMountOptions] unkown error');
+				}
+			})
+			.catch(response => {
+				if (response.error) {
+					log(`[setMountOptions] error: ${response.description}`);
+				} else {
+					log('[setMountOptions] unkown error');
+				}
 			});
-			this.stop();
-		},
-		onComplete: () => log('[job mounting] done'),
-		start: false
-	}).start();
+		} else {
+			noAdmin();
+		}
+	});
 
-	new CronJob({
-		cronTime: '58 17 * * *',
-		onTick: function() {
-			const data = Store.get('data');
-			mountDrive(data['drive-letter']).then(() => {
-				log(`[job unmounting] ${data['drive-letter']}`);
-			});
-			this.stop();
-		},
-		onComplete: () => log('[job unmounting] done'),
-		start: false
-	}).start();
+	function noAdmin() {
+		const sectionElm = doc.getElementById('no-admin');
+		sectionElm.classList.add('active');
+
+		win.flashFrame(true);
+		win.show();
+
+		doc.getElementById('reload').addEventListener('click', () => win.reload());
+	}
 
 	function setMountOptions() {
-		Promise.all([devices(), mountPoints()])
-		.then(([devices, mountPoints]) => {
-			setSelectOptions(devices.sorted, doc.getElementById('disk'));
-			setSelectOptions(mountPoints.unused, doc.getElementById('drive-letter'));
+		return new Promise((resolve, reject) => {
+			Promise.all([devices(), mountPoints()])
+			.then(([devices, mountPoints]) => {
+				setSelectOptions(devices.sorted, doc.getElementById('disk'));
+				setSelectOptions(mountPoints.unused, doc.getElementById('drive-letter'));
 
-			setSelectOptions(devices.all, doc.getElementById('tools-disk'));
-			setSelectOptions(mountPoints.unused, doc.getElementById('tools-drive-letter-mount'));
-			setSelectOptions(mountPoints.used, doc.getElementById('tools-drive-letter-unmount'));
+				setSelectOptions(devices.sorted, doc.getElementById('tools-disk'));
+				setSelectOptions(mountPoints.unused, doc.getElementById('tools-drive-letter-mount'));
+				setSelectOptions(mountPoints.used, doc.getElementById('tools-drive-letter-unmount'));
 
-			setStoredValues(doc);
+				resolve({ done: true });
+			})
+			.catch(error => {
+				resolve({ done: false, error: true, description: error });
+			})
 		});
 	}
 
@@ -70,16 +78,60 @@ const devices = require('./components/devices/devices');
 		element.disabled = false;
 	}
 
-	function setStoredValues(doc) {
-		const data = Store.get('data');
-		if (data) {
-			Object.keys(data).forEach(key => {
-				const input = doc.getElementById(key);
-				if (input) {
-					input.value = data[key];
-				}
-			});
+	function setTimers(data) {
+		const disk = data['disk'];
+		const letter = data['drive-letter'];
+		const mountTime = data['mount-time'];
+		const unmountTime = data['unmount-time'];
+
+		if (disk && letter && mountTime && unmountTime) {
+			setCron(data);
+			log(`[timer] set timers - ${JSON.stringify(data)}}`);
 		}
+	}
+
+	function setCron(data) {
+		const mountTimeArr = data['mount-time'].split(':');
+		const unmountTimeArr = data['unmount-time'].split(':');
+
+		new CronJob({
+			cronTime: `${mountTimeArr[1]} ${mountTimeArr[0]} * * *`,
+			onTick: function() {
+				mountDrive(data['drive-letter'], data.disk).then(() => {
+					log(`[job mounting] ${data['drive-letter']}`);
+				});
+			},
+			onComplete: () => this.stop(),
+			start: false
+		}).start();
+
+		new CronJob({
+			cronTime: `${unmountTimeArr[1]} ${unmountTimeArr[0]} * * *`,
+			onTick: function() {
+				mountDrive(data['drive-letter']).then(() => {
+					log(`[job unmounting] ${data['drive-letter']}`);
+				});
+			},
+			onComplete: () => this.stop(),
+			start: false
+		}).start();
+	}
+
+	function setStoredValues(data) {
+		Object.keys(data).forEach(key => {
+			const input = doc.getElementById(key);
+			if (input) {
+				input.value = data[key];
+			}
+		});
+	}
+
+	function disableForm(form, disable = true) {
+		form.classList.toggle('disabled', disable);
+		form['disk'].disabled = disable;
+		form['drive-letter'].disabled = disable;
+		form['mount-time'].disabled = disable;
+		form['unmount-time'].disabled = disable;
 	}
 
 	function addEvents() {
@@ -87,22 +139,32 @@ const devices = require('./components/devices/devices');
 		const editJobBtn = form['edit-job'];
 		const toolsForm = doc.getElementById('tools');
 
-		editJobBtn.addEventListener('click', () => {
-			console.log('edit job button');
-		});
+		editJobBtn.addEventListener('click', () => disableForm(form, false));
 
 		form.addEventListener('submit', event => {
 			event.preventDefault();
 
 			const data = {};
-			const formData = new FormData(event.target);
+			const form = event.target;
+			const formData = new FormData(form);
 			for (let value of formData) {
 				data[value[0]] = value[1];
 			}
+
+			disableForm(form);
+
 			Store.set('data', data);
+			setTimers(data);
 		});
 
 		// Tools
+		doc.getElementById('tools-collapse').addEventListener('click', () => {
+			const elem = doc.getElementById('tools-section');
+			const isExpanded = elem.classList.toggle('expanded');
+
+			const winBounds = win.getBounds();
+			win.setSize(winBounds.width, isExpanded ? 690 : 280);
+		});
 		doc.getElementById('mount').addEventListener('click', () => {
 			const device = toolsForm['tools-disk'].value;
 			const letter = toolsForm['tools-drive-letter-mount'].value;

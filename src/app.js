@@ -5,6 +5,7 @@ const development = process.env.NODE_ENV !== 'production';
 
 const iconPath = path.join(__dirname, 'dms.ico');
 const title = 'Drive Mount Scheduler';
+let tray = null;
 
 function createWindow() {
 	// CSP HTTP Header
@@ -14,11 +15,11 @@ function createWindow() {
 	});
 
 	let win = new BrowserWindow({
-		width: 1280,
-		height: 800,
+		width: 900,
+		height: 280,
 		maximizable: false,
 		icon: iconPath,
-		// show: false,
+		show: development, // start minimized in prod
 		resizable: development
 	});
 
@@ -35,12 +36,14 @@ function createWindow() {
 		win.webContents.openDevTools();
 	}
 
-	const tray = new Tray(iconPath);
+	tray = new Tray(iconPath);
 	var contextMenu = Menu.buildFromTemplate([{
 			label: 'Open',
 			click: () => {
 				win.setSkipTaskbar(false);
 				win.show();
+
+				console.log(app.getName());
 			}
 		},
 		{
@@ -64,6 +67,7 @@ function createWindow() {
 }
 
 app.setAppUserModelId(title);
+app.setName(title);
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
