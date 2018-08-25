@@ -32,9 +32,9 @@ function createWindow() {
 		slashes: true
 	}));
 
-	if (development) {
-		win.webContents.openDevTools();
-	}
+	// if (development) {
+	// 	win.webContents.openDevTools();
+	// }
 
 	tray = new Tray(iconPath);
 	var contextMenu = Menu.buildFromTemplate([{
@@ -42,8 +42,6 @@ function createWindow() {
 			click: () => {
 				win.setSkipTaskbar(false);
 				win.show();
-
-				console.log(app.getName());
 			}
 		},
 		{
@@ -56,7 +54,15 @@ function createWindow() {
 	]);
 	tray.setToolTip(title);
 	tray.setContextMenu(contextMenu);
-	tray.on('double-click', () => win.isVisible() ? win.hide() : win.show());
+	tray.on('double-click', () => {
+		if (win.isVisible()) {
+			win.setSkipTaskbar(true);
+			win.hide();
+		} else {
+			win.setSkipTaskbar(false);
+			win.show();
+		}
+	});
 
 	win.on('closed', () => win = null);
 	win.on('minimize', event => {
