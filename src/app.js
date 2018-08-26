@@ -32,9 +32,9 @@ function createWindow() {
 		slashes: true
 	}));
 
-	// if (development) {
-	// 	win.webContents.openDevTools();
-	// }
+	if (development) {
+		win.webContents.openDevTools();
+	}
 
 	tray = new Tray(iconPath);
 	var contextMenu = Menu.buildFromTemplate([{
@@ -77,9 +77,4 @@ app.setName(title);
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', () => {
-	if (process.platform !== 'darwin') {
-		app.quit()
-	}
-});
-
+app.on('window-all-closed', () => app.quit());

@@ -25,8 +25,19 @@ const devices = require('./components/devices/devices');
 				if (response.done) {
 					const data = Store.get('data');
 					if (data) {
-						setStoredValues(data);
-						setTimers(data);
+						const valuesSet = setStoredValues(data);
+						if (valuesSet) {
+							showWinWarning();
+							toggleToolsSection();
+							log('[warning] Unabled to fully restore the scheduled job');
+						}
+						else {
+							setTimers(data);
+							disableForm(doc.getElementById('form'));
+						}
+					} else {
+						toggleToolsSection();
+						log('[info] No job scheduled');
 					}
 				} else {
 					log('[setMountOptions] unkown error');
@@ -45,13 +56,15 @@ const devices = require('./components/devices/devices');
 	});
 
 	function noAdmin() {
-		const sectionElm = doc.getElementById('no-admin');
-		sectionElm.classList.add('active');
-
-		win.flashFrame(true);
-		win.show();
-
+		doc.getElementById('no-admin').classList.add('active');
 		doc.getElementById('reload').addEventListener('click', () => win.reload());
+		showWinWarning();
+	}
+
+	function showWinWarning() {
+		win.flashFrame(true);
+		win.setSkipTaskbar(false);
+		win.show();
 	}
 
 	function setMountOptions() {
@@ -96,7 +109,7 @@ const devices = require('./components/devices/devices');
 
 		new CronJob({
 			cronTime: `${mountTimeArr[1]} ${mountTimeArr[0]} * * *`,
-			onTick: function() {
+			onTick: () => {
 				mountDrive(data['drive-letter'], data.disk).then(() => {
 					log(`[job mounting] ${data['drive-letter']}`);
 				});
@@ -107,7 +120,7 @@ const devices = require('./components/devices/devices');
 
 		new CronJob({
 			cronTime: `${unmountTimeArr[1]} ${unmountTimeArr[0]} * * *`,
-			onTick: function() {
+			onTick: () => {
 				mountDrive(data['drive-letter']).then(() => {
 					log(`[job unmounting] ${data['drive-letter']}`);
 				});
@@ -118,12 +131,18 @@ const devices = require('./components/devices/devices');
 	}
 
 	function setStoredValues(data) {
+		let error = false;
 		Object.keys(data).forEach(key => {
 			const input = doc.getElementById(key);
 			if (input) {
 				input.value = data[key];
 			}
+
+			if (input.nodeName.toLowerCase() === 'select' && input.value === '') {
+				error = true;
+			}
 		});
+		return error;
 	}
 
 	function disableForm(form, disable = true) {
@@ -132,6 +151,14 @@ const devices = require('./components/devices/devices');
 		form['drive-letter'].disabled = disable;
 		form['mount-time'].disabled = disable;
 		form['unmount-time'].disabled = disable;
+	}
+
+	function toggleToolsSection() {
+		const elem = doc.getElementById('tools-section');
+		const isExpanded = elem.classList.toggle('expanded');
+
+		const winBounds = win.getBounds();
+		win.setSize(winBounds.width, isExpanded ? 690 : 280);
 	}
 
 	function addEvents() {
@@ -158,13 +185,7 @@ const devices = require('./components/devices/devices');
 		});
 
 		// Tools
-		doc.getElementById('tools-collapse').addEventListener('click', () => {
-			const elem = doc.getElementById('tools-section');
-			const isExpanded = elem.classList.toggle('expanded');
-
-			const winBounds = win.getBounds();
-			win.setSize(winBounds.width, isExpanded ? 690 : 280);
-		});
+		doc.getElementById('tools-collapse').addEventListener('click', () => toggleToolsSection());
 		doc.getElementById('mount').addEventListener('click', () => {
 			const device = toolsForm['tools-disk'].value;
 			const letter = toolsForm['tools-drive-letter-mount'].value;

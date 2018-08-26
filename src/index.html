@@ -9,7 +9,7 @@
 <body>
 	<div id="app" class="app">
 		<section>
-			<h2>Edit</h2>
+			<h2>Scheduled job</h2>
 			<form id="form" class="main-form" action="#">
 				<div class="row">
 					<label for="disk">
@@ -28,7 +28,7 @@
 					</label>
 					<label for="unmount-time">
 						Unmount:
-						<input type="time" name='unmount-time' id='unmount-time' value="00:05" />
+						<input type="time" name='unmount-time' id='unmount-time' value="00:15" />
 					</label>
 					<button class="btn-save-job primary">Save</button>
 					<button name="edit-job" class="btn-edit-job secondary" type="button">Edit</button>
@@ -81,7 +81,7 @@
 		</section>
 		<section id="no-admin" class="no-admin">
 			<div class="no-admin-message">
-				<h1>No administrator rights</h1>
+				<h2>No administrator rights</h2>
 				<p>This application needs administrator rights.</p>
 				<p>Try reloading or restart the application with administrator rights.</p>
 				<button id="reload" class="reload secondary" type="button">Reload</button>
