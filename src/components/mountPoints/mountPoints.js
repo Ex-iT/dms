@@ -1,6 +1,6 @@
-const getLetters = require('../../lib/getLetters');
-const getTemplate = require('../../lib/getTemplate');
-const sTE = require('../../lib/sTE');
+const getLetters = require('./../../lib/getLetters');
+const getTemplate = require('./../../lib/getTemplate');
+const sTE = require('./../../lib/sTE');
 
 function mountPoints() {
 	return new Promise((resolve, reject) => {

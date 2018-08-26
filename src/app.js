@@ -1,9 +1,9 @@
 const { app, session, BrowserWindow, Tray, Menu } = require('electron');
 const path = require('path');
 const url = require('url');
-const development = process.env.NODE_ENV !== 'production';
+const development = process.env.NODE_ENV === 'development';
 
-const iconPath = path.join(__dirname, 'dms.ico');
+const iconPath = path.join(__dirname, 'icon.ico');
 const title = 'Drive Mount Scheduler';
 let tray = null;
 
