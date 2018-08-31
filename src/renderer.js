@@ -13,10 +13,6 @@ const mountPoints = require('./components/mountPoints/mountPoints');
 const mountPointsAll = require('./components/mountPointsAll/mountPointsAll');
 const devices = require('./components/devices/devices');
 
-/* Note:
-	Run the application with admin rights
-	- runas.exe /noprofile /user:<username> <command>
-*/
 (function (doc) {
 	isAdmin().then(response => {
 		if (!response.error && response.isAdmin) {
