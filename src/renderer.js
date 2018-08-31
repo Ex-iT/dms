@@ -10,6 +10,7 @@ const win = remote.getCurrentWindow();
 
 // Components
 const mountPoints = require('./components/mountPoints/mountPoints');
+const mountPointsAll = require('./components/mountPointsAll/mountPointsAll');
 const devices = require('./components/devices/devices');
 
 /* Note:
@@ -21,39 +22,52 @@ const devices = require('./components/devices/devices');
 		if (!response.error && response.isAdmin) {
 			addEvents();
 			setMountOptions()
-			.then(response => {
-				if (response.done) {
-					const data = Store.get('data');
-					if (data) {
-						const valuesSet = setStoredValues(data);
-						if (valuesSet) {
-							showWinWarning();
+				.then(response => {
+					if (response.done) {
+						const data = Store.get('data');
+						if (data.disk && data['drive-letter'] && data['mount-time'] && data['unmount-time']) {
+							unMountScheduldedDevice(data)
+								.then(response => {
+									if (response.succes) {
+										setStoredValues(data);
+										setTimers(data);
+										disableForm(doc.getElementById('form'));
+									} else {
+										log('[warning] unable to unmount schedulded device');
+									}
+								});
+						} else {
 							toggleToolsSection();
-							log('[warning] Unabled to fully restore the scheduled job');
-						}
-						else {
-							setTimers(data);
-							disableForm(doc.getElementById('form'));
+							log('[info] No job scheduled');
 						}
 					} else {
-						toggleToolsSection();
-						log('[info] No job scheduled');
+						log('[setMountOptions] unkown error');
 					}
-				} else {
-					log('[setMountOptions] unkown error');
-				}
-			})
-			.catch(response => {
-				if (response.error) {
-					log(`[setMountOptions] error: ${response.description}`);
-				} else {
-					log('[setMountOptions] unkown error');
-				}
-			});
+				})
+				.catch(response => {
+					if (response.error) {
+						log(`[setMountOptions] error: ${response.description}`);
+					} else {
+						log('[setMountOptions] unkown error');
+					}
+				});
 		} else {
 			noAdmin();
 		}
 	});
+
+	function unMountScheduldedDevice(data) {
+		return new Promise((resolve, reject) => {
+			log(`[unMountScheduldedDevice] ${data['drive-letter']}`);
+			mountDrive(data['drive-letter']).then(() => {
+				log(`[unmounting] done`);
+				resolve({ succes: true });
+			})
+				.catch(() => {
+					reject({ succes: false });
+				});
+		});
+	}
 
 	function noAdmin() {
 		doc.getElementById('no-admin').classList.add('active');
@@ -69,20 +83,20 @@ const devices = require('./components/devices/devices');
 
 	function setMountOptions() {
 		return new Promise((resolve, reject) => {
-			Promise.all([devices(), mountPoints()])
-			.then(([devices, mountPoints]) => {
-				setSelectOptions(devices.sorted, doc.getElementById('disk'));
-				setSelectOptions(mountPoints.unused, doc.getElementById('drive-letter'));
+			Promise.all([devices(), mountPoints(), mountPointsAll()])
+				.then(([devices, mountPoints, mountPointsAll]) => {
+					setSelectOptions(devices.sorted, doc.getElementById('disk'));
+					setSelectOptions(mountPointsAll.all, doc.getElementById('drive-letter'));
 
-				setSelectOptions(devices.sorted, doc.getElementById('tools-disk'));
-				setSelectOptions(mountPoints.unused, doc.getElementById('tools-drive-letter-mount'));
-				setSelectOptions(mountPoints.used, doc.getElementById('tools-drive-letter-unmount'));
+					setSelectOptions(devices.sorted, doc.getElementById('tools-disk'));
+					setSelectOptions(mountPoints.unused, doc.getElementById('tools-drive-letter-mount'));
+					setSelectOptions(mountPoints.used, doc.getElementById('tools-drive-letter-unmount'));
 
-				resolve({ done: true });
-			})
-			.catch(error => {
-				resolve({ done: false, error: true, description: error });
-			})
+					resolve({ done: true });
+				})
+				.catch(error => {
+					reject({ done: false, error: true, description: error });
+				})
 		});
 	}
 
@@ -131,18 +145,12 @@ const devices = require('./components/devices/devices');
 	}
 
 	function setStoredValues(data) {
-		let error = false;
 		Object.keys(data).forEach(key => {
 			const input = doc.getElementById(key);
 			if (input) {
 				input.value = data[key];
 			}
-
-			if (input.nodeName.toLowerCase() === 'select' && input.value === '') {
-				error = true;
-			}
 		});
-		return error;
 	}
 
 	function disableForm(form, disable = true) {

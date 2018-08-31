@@ -6,6 +6,7 @@ const development = process.env.NODE_ENV === 'development';
 const iconPath = path.join(__dirname, 'icon.ico');
 const title = 'Drive Mount Scheduler';
 let tray = null;
+let win = null;
 
 function createWindow() {
 	// CSP HTTP Header
@@ -14,7 +15,7 @@ function createWindow() {
 		callback({ responseHeaders: `default-src 'self'; script-src 'unsafe-inline'` });
 	});
 
-	let win = new BrowserWindow({
+	win = new BrowserWindow({
 		width: 900,
 		height: 280,
 		maximizable: false,
@@ -38,19 +39,19 @@ function createWindow() {
 
 	tray = new Tray(iconPath);
 	var contextMenu = Menu.buildFromTemplate([{
-			label: 'Open',
-			click: () => {
-				win.setSkipTaskbar(false);
-				win.show();
-			}
-		},
-		{
-			label: 'Exit',
-			click: () => {
-				app.isQuiting = true;
-				app.quit();
-			}
+		label: 'Open',
+		click: () => {
+			win.setSkipTaskbar(false);
+			win.show();
 		}
+	},
+	{
+		label: 'Exit',
+		click: () => {
+			app.isQuiting = true;
+			app.quit();
+		}
+	}
 	]);
 	tray.setToolTip(title);
 	tray.setContextMenu(contextMenu);
@@ -74,6 +75,22 @@ function createWindow() {
 
 app.setAppUserModelId(title);
 app.setName(title);
+
+// Only one instance
+const shouldQuit = app.makeSingleInstance(() => {
+	if (win) {
+		if (win.isMinimized()) {
+			win.restore();
+		}
+		win.focus();
+	}
+});
+
+if (shouldQuit) {
+	app.quit();
+	return;
+}
+
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.
